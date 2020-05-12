@@ -9,27 +9,10 @@ resource "hcloud_server" "host" {
   server_type   = "${var.hetzner_server_type}"
   ssh_keys      = ["${hcloud_ssh_key.ssh_key.id}"]
   iso           = "${var.hetzner_iso_image}"
-  backup_window = "${var.hetzner_backup_window}"
+//  backup_window = "${var.hetzner_backup_window}"
   keep_disk     = "${var.hetzner_keep_disk}"
   rescue        = "${var.hetzner_rescue}"
-  user_data     = <<EOT
-#cloud-config
-groups:
-  - ${var.hetzner_group_name}: [root,sys]
-users:
-  - name: ${var.hetzner_user_name}
-    sudo: ALL=(ALL) NOPASSWD:ALL
-    groups: users, admin, ${var.hetzner_group_name}
-    shell: /bin/bash
-    lock_passwd: true
-    ssh_authorized_keys:
-      - ${file("~/.ssh/${var.hetzner_ssh_key_name}.pub")}
-hostname: ${format(var.hetzner_hostname_format, count.index + 1)}
-fqdn: ${format(var.hetzner_hostname_format, count.index + 1)}.${var.hetzner_domain}
-manage_etc_hosts: true
-apt_update: true
-apt_upgrade: true
-EOT
+  user_data     = "${file("user-data.yml")}"
 
   connection {
     user = "root"
@@ -119,7 +102,7 @@ EOT
       # Prevent IP Spoofing
       "echo 'Prevent IP Spoofing...'",
       "sudo sed -i 's/order hosts,bind/order bind,hosts/g' /etc/host.conf",
-      "sudo sed -i 's/multi on/nospoof on/g' /etc/host.conf",
+//      "sudo sed -i 's/multi on/nospoof on/g' /etc/host.conf",
 
       # Adding Warning Message in the Login Banner
       "echo 'Setting Banners...'",

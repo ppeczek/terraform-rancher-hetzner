@@ -1,0 +1,17 @@
+#cloud-config
+
+ssh_pwauth: no
+locale: en_US.UTF-8
+timezone: Europe/Warsaw
+
+users:
+  - name: username
+    sudo: ALL=(ALL) NOPASSWD:ALL
+    groups: users, admin
+    shell: /bin/bash
+    lock_passwd: true
+    ssh_authorized_keys:
+      - "ssh-rsa mykey name"
+manage_etc_hosts: true
+apt_update: true
+apt_upgrade: true
