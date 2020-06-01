@@ -1,45 +1,50 @@
-variable "count" {
-  type = "string"
+variable "instance_count" {
+  type = string
 }
 
 variable "connections" {
-  type = "list"
+  type = list(string)
 }
 
 variable "ssh_key_name" {
-  type = "string"
+  type = string
 }
 
 variable "user" {
-  type = "string"
+  type = string
 }
 
 variable "hostname_format" {
   description = "Hostname format"
-  type = "string"
+  type = string
 }
 
 variable "domain" {
-  description = "Donain"
-  type = "string"
+  description = "Domain"
+  type = string
+}
+
+variable "subdomain" {
+  description = "Subdomain name for servers"
+  type = string
 }
 
 variable "letsencrypt_mode" {
-  type = "string"
+  type = string
 }
 
 variable "email" {
-  type = "string"
+  type = string
 }
 
 variable "rancher_cluster" {
-  type = "string"
+  type = string
 }
 
 variable "rancher_password" {
-  type = "string"
+  type = string
 }
 
 variable "apt_install_master" {
-  type = "list"
+  type = list(string)
 }

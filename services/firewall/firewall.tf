@@ -1,12 +1,13 @@
 resource "null_resource" "firewall" {
 
-  count = "${var.count}"
+  count = var.instance_count
 
   connection {
     type = "ssh"
-    host  = "${element(var.connections, count.index + 1)}"
-    user = "${var.user}"
-    private_key = "${file("~/.ssh/${var.ssh_key_name}")}"
+    host  = element(var.connections, count.index + 1)
+    user = var.user
+    agent = false
+    private_key = file("~/.ssh/${var.ssh_key_name}")
   }
 
   provisioner "remote-exec" {

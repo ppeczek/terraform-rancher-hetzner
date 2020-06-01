@@ -1,22 +1,22 @@
 resource "hcloud_server" "host" {
-  depends_on = ["hcloud_ssh_key.ssh_key"]
+  depends_on = [hcloud_ssh_key.ssh_key]
 
-  count         = "${var.hetzner_server_count}"
+  count         = var.hetzner_server_count
 
-  name          = "${format(var.hetzner_hostname_format, count.index + 1)}"
-  datacenter    = "${var.hetzner_datacenter}"
-  image         = "${var.hetzner_image}"
-  server_type   = "${var.hetzner_server_type}"
-  ssh_keys      = ["${hcloud_ssh_key.ssh_key.id}"]
-  iso           = "${var.hetzner_iso_image}"
-//  backup_window = "${var.hetzner_backup_window}"
-  keep_disk     = "${var.hetzner_keep_disk}"
-  rescue        = "${var.hetzner_rescue}"
-  user_data     = "${file("user-data.yml")}"
+  name          = format(var.hetzner_hostname_format, count.index + 1)
+  datacenter    = var.hetzner_datacenter
+  image         = var.hetzner_image
+  server_type   = var.hetzner_server_type
+  ssh_keys      = [hcloud_ssh_key.ssh_key.id]
+  iso           = var.hetzner_iso_image
+  keep_disk     = var.hetzner_keep_disk
+  rescue        = var.hetzner_rescue
+  user_data     = file("user-data.yml")
 
   connection {
+    host = self.ipv4_address
     user = "root"
-    private_key = "${file("~/.ssh/${var.hetzner_ssh_key_name}")}"
+    private_key = file("~/.ssh/${var.hetzner_ssh_key_name}")
     type = "ssh"
   }
 
@@ -102,7 +102,6 @@ resource "hcloud_server" "host" {
       # Prevent IP Spoofing
       "echo 'Prevent IP Spoofing...'",
       "sudo sed -i 's/order hosts,bind/order bind,hosts/g' /etc/host.conf",
-//      "sudo sed -i 's/multi on/nospoof on/g' /etc/host.conf",
 
       # Adding Warning Message in the Login Banner
       "echo 'Setting Banners...'",
@@ -143,26 +142,25 @@ resource "hcloud_server" "host" {
     ]
   }
 
-  provisioner "local-exec" {
-    command = <<EOT
-curl -s -X POST "https://api.zeit.co/v2/domains/${var.hetzner_domain}/records" \
-  -H "Authorization: Bearer ${var.zeit_token}" \
-  -H "Content-Type: application/json" \
-  -d '{
-    "name": "${format(var.hetzner_hostname_format, count.index + 1)}",
-    "type": "A",
-    "value": "${self.ipv4_address}"
-  }'
-EOT
-  }
-
-  provisioner "local-exec" {
-    when = "destroy"
-    command = <<EOT
-export RECORD_ID=$(curl -s "https://api.zeit.co/v2/domains/${var.hetzner_domain}/records" -H "Authorization: Bearer ${var.zeit_token}" | jq -r '.records[] | select((.value=="${self.ipv4_address}") and (.type=="A")) | .id')
-echo $RECORD_ID
-curl -s -X DELETE https://api.zeit.co/v2/domains/${var.hetzner_domain}/records/$RECORD_ID -H "Authorization: Bearer ${var.zeit_token}"
-EOT
-  }
+//  provisioner "local-exec" {
+//    command = <<EOT
+//curl -s -X POST "https://api.zeit.co/v2/domains/${var.hetzner_domain}/records" \
+//  -H "Authorization: Bearer ${var.zeit_token}" \
+//  -H "Content-Type: application/json" \
+//  -d '{
+//    "name": "${format(var.hetzner_hostname_format, count.index + 1)}",
+//    "type": "A",
+//    "value": "${self.ipv4_address}"
+//  }'
+//EOT
+//  }
+//
+//  provisioner "local-exec" {
+//    when = "destroy"
+//    command = <<EOT
+//export RECORD_ID=$(curl -s "https://api.zeit.co/v2/domains/${var.hetzner_domain}/records" -H "Authorization: Bearer ${var.zeit_token}" | jq -r '.records[] | select((.value=="${self.ipv4_address}") and (.type=="A")) | .id')
+//echo $RECORD_ID
+//curl -s -X DELETE https://api.zeit.co/v2/domains/${var.hetzner_domain}/records/$RECORD_ID -H "Authorization: Bearer ${var.zeit_token}"
+//EOT
+//  }
 }
-

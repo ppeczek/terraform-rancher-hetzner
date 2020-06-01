@@ -2,9 +2,9 @@ resource "null_resource" "nginx" {
 
   connection {
     type = "ssh"
-    host  = "${element(var.connections, 0)}"
-    user = "${var.user}"
-    private_key = "${file("~/.ssh/${var.ssh_key_name}")}"
+    host  = element(var.connections, 0)
+    user = var.user
+    private_key = file("~/.ssh/${var.ssh_key_name}")
   }
 
   provisioner "remote-exec" {
